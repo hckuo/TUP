@@ -2,7 +2,7 @@ import subprocess
 import os
 import binascii
 
-## use ffprobe -show_frames input.mp4 to get video meta data
+## use "ffprobe -show_frames input.mp4 > frame.txt" to get video meta data
 
 ## return array of frame (not used)
 def getIDtype(fileName):
