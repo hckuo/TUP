@@ -29,12 +29,13 @@ def buffer_frame(fileName, videoRange):
             if flag:
                 my_bytes = bytearray()
                 for i in range(currentRange[0], currentRange[1]):
-                    my_bytes.append(x0)
+                    my_bytes.append(ord(x0))
                     x0 = f.read(1)
                     count+=1
                 s_tcp = create_tcp_socket()
                 send_tcp_socket(s_tcp,my_bytes)
                 s_tcp.close()
+
             else:
                 #element OUT of the range will go here
                 send_udp_socket(s_udp,x0)
