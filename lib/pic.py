@@ -55,31 +55,65 @@ def getFrames(metaName):
                 setattr(f, var, value)
     return frames
 
+## return the range of the video that is I frame type
+def getIRange(fs):
+    vidList = []    
+    for f in fs:
+        if f.isVideoFrame() and f.isIFrame():
+            start_pkt = int(f.pkt_pos)
+            range_pkt = int(f.pkt_size)
+            p = [start_pkt,start_pkt+range_pkt] #[0, 10)
+            vidList.append(p)
+    return vidList
+
+## return the range of the video that is P frame type
+def getPRange(fs):
+    vidList = []    
+    for f in fs:
+        if f.isVideoFrame() and f.isPFrame():
+            start_pkt = int(f.pkt_pos)
+            range_pkt = int(f.pkt_size)
+            p = [start_pkt,start_pkt+range_pkt] #[0, 10)
+            vidList.append(p)
+    return vidList
 
 ## check input file byte by byte if it is in the given range
 def buffer_frame(fileName, videoRange):
+    cc = 0
     count = 0
     with open(fileName, 'rb') as f:
         while (1):
-            x0 = f.read(1)
+            x0 = f.read(1) #read byte by byte
             if not x0:
                 break
             xhex = binascii.hexlify(x0)
-            count += 1
             flag = False
+            
             for r in videoRange:
-                if r[0] <= count and count < r[1]:
+                if count>=r[0] and count < r[1]:
                     flag = True
-            if flag:
+                    break
+                if count<r[0]:
+                    break
+            #if flag:
+                #msg = input()
+                #print(xhex)
                 #element IN the range will go here
-                print("TCP", end=' ')
-            else:
+                #print("TCP", end=' ')
+            #else:
                 #element OUT of the range will go here
-                print("UDP", end=' ')
-
-
+                #print("UDP", end=' ')
+            count += 1
 ##TESTING FUNCTION
 if __name__ == '__main__':
-    fileName = '../input.mp4'
-    metaName = '../frame.txt'
-    fs = getFrames(metaName)
+    #fileName = '../input.mp4'
+    fileName = '../server/small.mp4'
+    #metaName = '../frame.txt'
+    metaName = '../server/new.txt'
+    
+    #fs = getFrames(metaName)
+    #IRange = getIRange(fs)
+    #PRange = getPRange(fs)
+    #print (IRange)
+    #buffer_frame(fileName, IRange)
+
