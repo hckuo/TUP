@@ -77,33 +77,7 @@ def getPRange(fs):
             vidList.append(p)
     return vidList
 
-## check input file byte by byte if it is in the given range
-def buffer_frame(fileName, videoRange):
-    cc = 0
-    count = 0
-    with open(fileName, 'rb') as f:
-        while (1):
-            x0 = f.read(1) #read byte by byte
-            if not x0:
-                break
-            xhex = binascii.hexlify(x0)
-            flag = False
-            
-            for r in videoRange:
-                if count>=r[0] and count < r[1]:
-                    flag = True
-                    break
-                if count<r[0]:
-                    break
-            #if flag:
-                #msg = input()
-                #print(xhex)
-                #element IN the range will go here
-                #print("TCP", end=' ')
-            #else:
-                #element OUT of the range will go here
-                #print("UDP", end=' ')
-            count += 1
+
 ##TESTING FUNCTION
 if __name__ == '__main__':
     #fileName = '../input.mp4'
