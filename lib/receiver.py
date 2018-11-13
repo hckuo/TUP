@@ -5,11 +5,11 @@ def read_tcp(s):
     client,addr = s.accept()
     data = client.recv(1024) #TODO NOT ENOUGH for A PICTURE 
     client.close()
-    print ("Recv TCP:' %s '" % data)
+    #print ("Recv TCP:' %s '" % data)
 
 def read_udp(s):
     data, addr = s.recvfrom(1024)
-    # print ("Recv UDP:' %s '" % data)
+    #print ("Recv UDP:' %s '" % data)
 
 def run():
     host = 'localhost'
