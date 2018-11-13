@@ -3,17 +3,17 @@ from select import select
 
 def read_tcp(s):
     client,addr = s.accept()
-    data = client.recv(1024) #TODO NOT ENOUGH for A PICTURE 
+    data = client.recv(2048)
     client.close()
     #print ("Recv TCP:' %s '" % data)
 
 def read_udp(s):
-    data, addr = s.recvfrom(1024)
+    data, addr = s.recvfrom(2048)
     #print ("Recv UDP:' %s '" % data)
 
 def run():
-    host = 'localhost'
-    port1 = 8889 #port for TCP 
+    host = '127.0.0.1'
+    port1 = 6677 #port for TCP 
     port2 = 8888 #port for UDP
     backlog = 5
 

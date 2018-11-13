@@ -3,7 +3,7 @@ import random
 
 def create_tcp_socket():
     s = socket(AF_INET,SOCK_STREAM)
-    s.connect(('localhost',8889))
+    s.connect(('127.0.0.1',6677))
     return s
 def create_udp_socket():
     s = socket(AF_INET,SOCK_DGRAM)
@@ -13,12 +13,12 @@ def send_tcp_socket(s,data):
     s.send(data)
 
 def send_udp_socket(s,data):
-    s.sendto(data, ('localhost',8888))
+    s.sendto(data, ('127.0.0.1',8888))
 
 ### COMBINE TESTING METHOD ###
 def send_tcp():
     s = socket(AF_INET,SOCK_STREAM)
-    s.connect(('localhost',8889))
+    s.connect(('localhost',6677))
     data='Hello TCP'
     s.send(data)
     s.close()
