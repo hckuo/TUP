@@ -2,6 +2,7 @@ import binascii
 import os
 import subprocess
 
+
 class Frame:
     def __init__(self):
         pass
@@ -17,6 +18,7 @@ class Frame:
 
     def get(self, var):
         return getattr(self, var)
+
 
 ## use "ffprobe -show_frames input.mp4 > frame.txt" to get video meta data
 
@@ -55,25 +57,27 @@ def getFrames(metaName):
                 setattr(f, var, value)
     return frames
 
+
 ## return the range of the video that is I frame type
 def getIRange(fs):
-    vidList = []    
+    vidList = []
     for f in fs:
         if f.isVideoFrame() and f.isIFrame():
             start_pkt = int(f.pkt_pos)
             range_pkt = int(f.pkt_size)
-            p = [start_pkt,start_pkt+range_pkt] #[0, 10)
+            p = [start_pkt, start_pkt + range_pkt]  #[0, 10)
             vidList.append(p)
     return vidList
 
+
 ## return the range of the video that is P frame type
 def getPRange(fs):
-    vidList = []    
+    vidList = []
     for f in fs:
         if f.isVideoFrame() and f.isPFrame():
             start_pkt = int(f.pkt_pos)
             range_pkt = int(f.pkt_size)
-            p = [start_pkt,start_pkt+range_pkt] #[0, 10)
+            p = [start_pkt, start_pkt + range_pkt]  #[0, 10)
             vidList.append(p)
     return vidList
 
@@ -84,10 +88,9 @@ if __name__ == '__main__':
     fileName = '../server/small.mp4'
     #metaName = '../frame.txt'
     metaName = '../server/new.txt'
-    
+
     #fs = getFrames(metaName)
     #IRange = getIRange(fs)
     #PRange = getPRange(fs)
     #print (IRange)
     #buffer_frame(fileName, IRange)
-
