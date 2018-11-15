@@ -4,21 +4,29 @@ import random
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
-    s.connect(('127.0.0.1', 6677))
+    s.connect(('localhost', 6677))
     return s
 
 
 def create_udp_socket():
     s = socket(AF_INET, SOCK_DGRAM)
+    s.bind(('localhost', 8888))
     return s
 
 
-def send_tcp_socket(s, data):
-    s.send(data)
+def send_with_socket(s, data, step=2048):
+    for i in range(0, len(data), step):
+        if i + step > len(data):
+            s.send(data[i:])
+        else:
+            s.send(data[i:i+step])
 
-
-def send_udp_socket(s, data):
-    s.sendto(data, ('127.0.0.1', 8888))
+def sendto_with_socket(s, data, addr=('localhost', 8888), step=2048):
+    for i in range(0, len(data), step):
+        if i + step > len(data):
+            s.sendto(data[i:], addr)
+        else:
+            s.sendto(data[i:i+step], addr)
 
 
 ### COMBINE TESTING METHOD ###

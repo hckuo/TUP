@@ -14,28 +14,16 @@ def get_bytes_from_file(filename):
     return data
 
 
-def onlyUsingUDP(vdata):
-    s_udp = create_udp_socket()
-    u_count = 0
-    for bt in vdata:
-        u_bytes.append(bt)
-        u_count += 1
-        if u_count == BYTE_STEP:
-            send_udp_socket(s_udp, u_bytes)
-            u_count = 0
-            u_bytes = bytearray()
-    send_udp_socket(s_udp, u_bytes)
-    s_udp.close()
+def send_UDP(vdata):
+    s = create_udp_socket()
+    sendto_with_socket(s, vdata)
+    s.close()
 
 
-def onlyUsingTCP(vdata):
-    s_tcp = create_tcp_socket()
-    for i in range(len(vdata), step=BYTE_STEP):
-        if i + BYTE_STEP > len(vdata):
-            send_tcp_socket(s_tcp, vdata[i:])
-        else:
-            send_tcp_socket(s_tcp, vdata[i:i + BYTE_STEP])
-    s_tcp.close()
+def send_TCP(vdata):
+    s = create_tcp_socket()
+    send_with_socket(s, vdata)
+    s.close()
 
 
 ## check input file byte by byte if it is in the given range
@@ -107,13 +95,13 @@ if __name__ == '__main__':
     print(tend - tstart)
 
     tstart = datetime.now()
-    onlyUsingTCP(vdata)
+    send_TCP(vdata)
     tend = datetime.now()
     print('TCP time used:')
     print(tend - tstart)
 
     tstart = datetime.now()
-    onlyUsingUDP(vdata)
+    send_UDP(vdata)
     tend = datetime.now()
     print('UDP time used:')
     print(tend - tstart)
