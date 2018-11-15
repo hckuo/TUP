@@ -65,7 +65,7 @@ def getIRange(fs):
         if f.isVideoFrame() and f.isIFrame():
             start_pkt = int(f.pkt_pos)
             range_pkt = int(f.pkt_size)
-            p = [start_pkt, start_pkt + range_pkt]  #[0, 10)
+            p = (start_pkt, start_pkt + range_pkt)  #[0, 10)
             vidList.append(p)
     return vidList
 
