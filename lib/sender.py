@@ -11,7 +11,6 @@ def create_tcp_socket():
 
 def create_udp_socket():
     s = socket(AF_INET, SOCK_DGRAM)
-    s.bind(('localhost', 8888))
     return s
 
 

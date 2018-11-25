@@ -51,10 +51,10 @@ def tcp_sender(btArray):
 
 ##TESTING FUNCTION
 if __name__ == '__main__':
-    #  fileName = 'small.mp4'
-    #  metaName = 'new.txt'
-    fileName = '../input.mp4'
-    metaName = '../frame.txt'
+    fileName = 'small.mp4'
+    metaName = 'new.txt'
+    #  fileName = '../input.mp4'
+    #  metaName = '../frame.txt'
 
     vdata = get_bytes_from_file(fileName)
 
