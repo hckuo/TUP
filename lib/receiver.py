@@ -6,12 +6,12 @@ def read_tcp(s):
     client, addr = s.accept()
     data = client.recv(2048)
     client.close()
-    #print ("Recv TCP:' %s '" % data)
+    return data
 
 
 def read_udp(s):
     data, addr = s.recvfrom(2048)
-    #print ("Recv UDP:' %s '" % data)
+    return data
 
 
 def run():
@@ -43,6 +43,6 @@ def run():
 
 ## TESTING FUNCTION
 if __name__ == '__main__':
-    fileName = '../server/small.mp4'
-    metaName = '../server/new.txt'
+    fileName = '../input.mp4'
+    metaName = '../frame.txt'
     run()

@@ -37,8 +37,6 @@ def send_TUP(vdata, videoRange):
         udp_start = r[1]
         tcp_data += vdata[tcp_start:udp_start]
     udp_data += vdata[udp_start:]
-    print(len(vdata))
-    print(len(udp_data), len(tcp_data))
     #TODO: make sends concurrently
     send_TCP(tcp_data)
     send_UDP(udp_data)
@@ -53,10 +51,10 @@ def tcp_sender(btArray):
 
 ##TESTING FUNCTION
 if __name__ == '__main__':
-    fileName = 'small.mp4'
-    metaName = 'new.txt'
-    #fileName = '../input.mp4'
-    #metaName = '../frame.txt'
+    #  fileName = 'small.mp4'
+    #  metaName = 'new.txt'
+    fileName = '../input.mp4'
+    metaName = '../frame.txt'
 
     vdata = get_bytes_from_file(fileName)
 
@@ -65,17 +63,17 @@ if __name__ == '__main__':
     PRange = getPRange(fs)
     print(IRange)
 
-    tstart = datetime.now()
-    send_TUP(vdata, IRange)
-    tend = datetime.now()
-    print('TUP(our method) time used:')
-    print(tend - tstart)
+    #  tstart = datetime.now()
+    #  send_TUP(vdata, IRange)
+    #  tend = datetime.now()
+    #  print('TUP(our method) time used:')
+    #  print(tend - tstart)
 
-    tstart = datetime.now()
-    send_TCP(vdata)
-    tend = datetime.now()
-    print('TCP time used:')
-    print(tend - tstart)
+    #  tstart = datetime.now()
+    #  send_TCP(vdata)
+    #  tend = datetime.now()
+    #  print('TCP time used:')
+    #  print(tend - tstart)
 
     tstart = datetime.now()
     send_UDP(vdata)
