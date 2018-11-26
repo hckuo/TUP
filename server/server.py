@@ -4,7 +4,7 @@ sys.path.insert(0, '../lib')
 from socket import *
 from pic import *
 
-byte_step = 2048
+byte_step = 1024
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
@@ -18,7 +18,7 @@ def create_udp_socket():
     return s
 
 
-def send_with_connection(conn, data, step=2048):
+def send_with_connection(conn, data, step=byte_step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             conn.send(data[i:])
@@ -26,7 +26,7 @@ def send_with_connection(conn, data, step=2048):
             conn.send(data[i:i+step])
     conn.close()
 
-def sendto_with_socket(s, data, addr=('localhost', 8888), step=2048):
+def sendto_with_socket(s, data, addr=('localhost', 8888), step=byte_step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             s.sendto(data[i:], addr)
@@ -42,7 +42,7 @@ def get_bytes_from_file(filename):
 
 def send_UDP(vdata):
     s = create_udp_socket()
-    sendto_with_socket(s, vdata, step=1024)
+    sendto_with_socket(s, vdata)
     s.close()
 
 
