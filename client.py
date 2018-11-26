@@ -1,9 +1,20 @@
 from socket import *
 from select import select
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', '--udp', action='store_true')
+parser.add_argument('--host')
+parser.add_argument('-s', '--step')
+args = parser.parse_args()
+if args.host:
+    host = args.host
+if args.step:
+    byte_step = args.step
 byte_step = 1024
 host = 'localhost'
 tcp_port = 6677
+udp_port = 8888
 
 def read_tcp(s):
     return data
@@ -56,12 +67,25 @@ def receive_tcp():
     return data
 
 
+def receive_udp():
+    data = bytearray()
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.bind((host, udp_port))
+    while True:
+        chunk, addr = s.recvfrom(byte_step)
+        data += chunk
+        if chunk == b'':
+            break;
+    return data
 
 ## TESTING FUNCTION
 if __name__ == '__main__':
     fileName = 'videos/uiuc.mp4'
     metaName = fileName + '.meta'
-    data = receive_tcp()
+    if args.udp:
+        data = receive_udp()
+    else:
+        data = receive_tcp()
     with open('output.mp4', 'wb') as f:
         f.write(data)
 

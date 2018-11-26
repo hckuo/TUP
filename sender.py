@@ -42,6 +42,7 @@ def sendto_with_socket(s, data, addr=(host, 8888), step=byte_step):
             s.sendto(data[i:], addr)
         else:
             s.sendto(data[i:i+step], addr)
+    s.sendto(b'', addr)
 
 def get_bytes_from_file(filename):
     f = open(filename, "rb")
@@ -97,7 +98,7 @@ def tcp_sender(btArray):
 ##TESTING FUNCTION
 if __name__ == '__main__':
 
-    fileName = 'videos/rabbit.mp4'
+    #  fileName = 'videos/rabbit.mp4'
     fileName = 'videos/uiuc.mp4'
     metaName = fileName + '.meta'
 
