@@ -72,7 +72,7 @@ def receive_udp():
     s = socket(AF_INET, SOCK_DGRAM)
     s.bind((host, udp_port))
     while True:
-        chunk, addr = s.recv(byte_step)
+        chunk, addr = s.recvfrom(byte_step)
         data += chunk
         if chunk == b'':
             break;
