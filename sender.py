@@ -107,7 +107,6 @@ if __name__ == '__main__':
     fs = getFrames(metaName)
     IRange = getIRange(fs)
     PRange = getPRange(fs)
-    print(IRange)
 
     #  tstart = datetime.now()
     #  send_TUP(vdata, IRange)
