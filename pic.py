@@ -29,7 +29,8 @@ def getIDtype(fileName):
     )
     out = subprocess.check_output(command + [fileName]).decode()
     frame_types = out.replace('pict_type=', '').split()
-    return zip(range(len(frame_types)), frame_types) 
+    return zip(range(len(frame_types)), frame_types)
+
 
 ## save raw data of specific frame (not used)
 def getRawByte(fileName, index):

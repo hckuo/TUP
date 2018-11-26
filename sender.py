@@ -1,12 +1,20 @@
 import sys
 from datetime import datetime
-sys.path.insert(0, '../lib')
 from socket import *
 from pic import *
 import argparse
 
 host = 'localhost'
 byte_step = 1024
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', '--udp', action='store_true')
+parser.add_argument('--host')
+parser.add_argument('-s', '--step')
+args = parser.parse_args()
+if args.host:
+    host = args.host
+if args.step:
+    byte_step = args.step
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
@@ -88,15 +96,6 @@ def tcp_sender(btArray):
 
 ##TESTING FUNCTION
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--udp', action='store_true')
-    parser.add_argument('--host')
-    parser.add_argument('-s', '--step')
-    args = parser.parse_args()
-    if args.host:
-        host = args.host
-    if args.step:
-        byte_step = args.step
 
     fileName = '../videos/rabbit.mp4'
     fileName = '../videos/uiuc.mp4'
