@@ -13,8 +13,8 @@ if args.step:
     byte_step = args.step
 byte_step = 1024
 host = 'localhost'
-tcp_port = 6677
-udp_port = 8888
+tcp_port = 16677
+udp_port = 18888
 
 def read_tcp(s):
     return data
