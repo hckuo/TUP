@@ -7,14 +7,14 @@ parser.add_argument('-u', '--udp', action='store_true')
 parser.add_argument('--host')
 parser.add_argument('-s', '--step')
 args = parser.parse_args()
-if args.host:
-    host = args.host
-if args.step:
-    byte_step = args.step
 byte_step = 1024
 host = 'localhost'
 tcp_port = 16677
 udp_port = 18888
+if args.host:
+    host = args.host
+if args.step:
+    byte_step = args.step
 
 def read_tcp(s):
     return data
@@ -72,7 +72,7 @@ def receive_udp():
     s = socket(AF_INET, SOCK_DGRAM)
     s.bind((host, udp_port))
     while True:
-        chunk, addr = s.recvfrom(byte_step)
+        chunk, addr = s.recv(byte_step)
         data += chunk
         if chunk == b'':
             break;
