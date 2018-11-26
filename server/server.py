@@ -3,7 +3,9 @@ from datetime import datetime
 sys.path.insert(0, '../lib')
 from socket import *
 from pic import *
+import argparse
 
+host = 'localhost'
 byte_step = 1024
 
 def create_tcp_socket():
@@ -42,7 +44,11 @@ def get_bytes_from_file(filename):
 
 def send_UDP(vdata):
     s = create_udp_socket()
+    tstart = datetime.now()
     sendto_with_socket(s, vdata)
+    tend = datetime.now()
+    print('UDP time used:')
+    print(tend - tstart)
     s.close()
 
 
@@ -82,6 +88,16 @@ def tcp_sender(btArray):
 
 ##TESTING FUNCTION
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', '--udp', action='store_true')
+    parser.add_argument('--host', action='store_true')
+    parser.add_argument('-s', '--step', action='store_true')
+    args = parser.parse_args()
+    if args.host:
+        host = args.host
+    if args.step:
+        byte_step = args.step
+
     fileName = '../videos/rabbit.mp4'
     fileName = '../videos/uiuc.mp4'
     metaName = fileName + '.meta'
@@ -99,10 +115,10 @@ if __name__ == '__main__':
     #  print('TUP(our method) time used:')
     #  print(tend - tstart)
 
-    send_TCP(vdata)
+    if args.udp:
+        print('Sending UDP')
+        send_UDP(vdata)
+    else:
+        print('Sending TCP')
+        send_TCP(vdata)
 
-    tstart = datetime.now()
-    send_UDP(vdata)
-    tend = datetime.now()
-    print('UDP time used:')
-    print(tend - tstart)
