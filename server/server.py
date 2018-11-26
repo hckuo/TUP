@@ -16,13 +16,18 @@ def get_bytes_from_file(filename):
 
 def send_UDP(vdata):
     s = create_udp_socket()
-    sendto_with_socket(s, vdata)
+    sendto_with_socket(s, vdata, step=1024)
     s.close()
 
 
 def send_TCP(vdata):
     s = create_tcp_socket()
-    send_with_socket(s, vdata)
+    conn, addr = s.accept()
+    tstart = datetime.now()
+    send_with_connection(conn, vdata)
+    tend = datetime.now()
+    print('TCP time used:', end='')
+    print(tend - tstart)
     s.close()
 
 
@@ -51,10 +56,9 @@ def tcp_sender(btArray):
 
 ##TESTING FUNCTION
 if __name__ == '__main__':
-    fileName = 'small.mp4'
-    metaName = 'new.txt'
-    #  fileName = '../input.mp4'
-    #  metaName = '../frame.txt'
+    fileName = '../videos/rabbit.mp4'
+    fileName = '../videos/uiuc.mp4'
+    metaName = fileName + '.meta'
 
     vdata = get_bytes_from_file(fileName)
 
@@ -69,11 +73,7 @@ if __name__ == '__main__':
     #  print('TUP(our method) time used:')
     #  print(tend - tstart)
 
-    #  tstart = datetime.now()
-    #  send_TCP(vdata)
-    #  tend = datetime.now()
-    #  print('TCP time used:')
-    #  print(tend - tstart)
+    send_TCP(vdata)
 
     tstart = datetime.now()
     send_UDP(vdata)

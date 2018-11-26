@@ -14,8 +14,7 @@ def create_udp_socket():
     return s
 
 
-def send_with_socket(s, data, step=2048):
-    conn, addr = s.accept();
+def send_with_connection(conn, data, step=2048):
     for i in range(0, len(data), step):
         if i + step > len(data):
             conn.send(data[i:])
