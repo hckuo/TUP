@@ -90,8 +90,8 @@ def tcp_sender(btArray):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--udp', action='store_true')
-    parser.add_argument('--host', action='store_true')
-    parser.add_argument('-s', '--step', action='store_true')
+    parser.add_argument('--host')
+    parser.add_argument('-s', '--step')
     args = parser.parse_args()
     if args.host:
         host = args.host
