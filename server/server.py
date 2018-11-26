@@ -10,7 +10,7 @@ byte_step = 1024
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
-    s.bind(('localhost', 6677))
+    s.bind((host, 6677))
     s.listen(5)
     return s
 
@@ -28,7 +28,7 @@ def send_with_connection(conn, data, step=byte_step):
             conn.send(data[i:i+step])
     conn.close()
 
-def sendto_with_socket(s, data, addr=('localhost', 8888), step=byte_step):
+def sendto_with_socket(s, data, addr=(host, 8888), step=byte_step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             s.sendto(data[i:], addr)
