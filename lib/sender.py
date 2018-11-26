@@ -5,7 +5,7 @@ import random
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
     s.bind(('localhost', 6677))
-    s.listen()
+    s.listen(5)
     return s
 
 
