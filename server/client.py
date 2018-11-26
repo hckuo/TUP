@@ -3,14 +3,14 @@ from select import select
 
 
 def read_tcp(s):
-    client, addr = s.accept()
-    data = client.recv(2048)
+    #client, addr = s.accept()
+    data = client.recv(1024)
     client.close()
     return data
 
 
 def read_udp(s):
-    data, addr = s.recvfrom(2048)
+    data, addr = s.recvfrom(1024)
     return data
 
 
@@ -22,12 +22,11 @@ def run():
 
     # create tcp socket
     tcp = socket(AF_INET, SOCK_STREAM)
-    tcp.bind((host, port1))
-    tcp.listen(backlog)
-
+    tcp.connect((host, port1))
+    # tcp.listen(backlog)
     # create udp socket
     udp = socket(AF_INET, SOCK_DGRAM)
-    udp.bind((host, port2))
+    udp.bind(("", port2))
 
     input = [tcp, udp]
     while True:
@@ -45,4 +44,5 @@ def run():
 if __name__ == '__main__':
     fileName = '../input.mp4'
     metaName = '../frame.txt'
+
     run()
