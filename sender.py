@@ -97,8 +97,8 @@ def tcp_sender(btArray):
 ##TESTING FUNCTION
 if __name__ == '__main__':
 
-    fileName = '../videos/rabbit.mp4'
-    fileName = '../videos/uiuc.mp4'
+    fileName = 'videos/rabbit.mp4'
+    fileName = 'videos/uiuc.mp4'
     metaName = fileName + '.meta'
 
     vdata = get_bytes_from_file(fileName)
