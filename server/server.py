@@ -1,7 +1,7 @@
 import sys
 from datetime import datetime
 sys.path.insert(0, '../lib')
-from sender import *
+from socket import *
 from pic import *
 
 byte_step = 2048
