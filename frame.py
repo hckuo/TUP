@@ -14,19 +14,20 @@ class segment:
         socket.sendto(self,data, addr)
 
 class frame:
-    def __init__(self, type, id, start, end)
+    def __init__(self, type, id, start, end, data)
         self.type = type
         self.id = id
         self.start = start
         self.end = end
         self.size = end - start
+        self.data = data
         self.segs = []
         sid = 0
         for i in range(self.start, self.end, step):
             if i + step > end:
-                self.segs.append(segment(sid, self.id, i, end))
+                self.segs.append(segment(sid, self.id, i, end, data[i:end]))
             else:
-                self.segs.append(segment(sid, self.id, i, i+step))
+                self.segs.append(segment(sid, self.id, i, i+step, data[i:i+step]))
             sid += 1
 
     def segments(self, step=1024):
