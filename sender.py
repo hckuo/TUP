@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
 from frame import frame
+from operator import attrgetter
 from socket import socket, AF_INET, SOCK_STREAM,SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
 import sys
 
@@ -46,7 +47,7 @@ def sendto_with_socket(s, data, addr=(args.host, 18888), step=args.step):
 def send_UDP(frames):
     sock = create_udp_socket()
     tstart = datetime.now()
-    for f in frames:
+    for f in sorted(frames, key=attrgetter('pkt_pos')):
         for s in f.segs:
             sock.sendto(s.data, (args.host, 18888))
     tend = datetime.now()
