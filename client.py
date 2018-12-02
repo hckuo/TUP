@@ -68,7 +68,14 @@ def receive_udp():
     s = socket(AF_INET, SOCK_DGRAM)
     s.bind((args.host, udp_port))
     while True:
-        chunk, addr = s.recvfrom(args.step)
+        header = s.recvfrom(32)
+        f_pos = int.from_bytes(header[0:7],'little')
+        f_size = int.from_bytes(header[8:15],'little')
+        s_pos = int.from_bytes(header[16:23],'little')
+        s_size = int.from_bytes(header[24:31],'little')
+        chunk, addr = s.recvfrom(s_size)
+
+
         data += chunk
         if chunk == b'':
             print('UDP end recv')
