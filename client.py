@@ -6,6 +6,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
 parser.add_argument('-t', '--tcp', action='store_true')
+parser.add_argument('-tu', '--tup', action='store_true')
 parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 args = parser.parse_args()
@@ -100,5 +101,8 @@ if __name__ == '__main__':
     if args.tcp:
         print('reciving TCP')
         data = receive_tcp()
+    if args.tup:
+        print('reciving TUP')
+        data = receive_tup()
     with open('output.mp4', 'wb') as f:
         f.write(data)

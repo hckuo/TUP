@@ -8,6 +8,7 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
 parser.add_argument('-t', '--tcp', action='store_true')
+parser.add_argument('-tu', '--tup', action='store_true')
 parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
@@ -51,7 +52,7 @@ def send_UDP(frames):
     tstart = datetime.now()
     for f in frames:
         for s in f.segs:
-            sock.sendto(s.udp_meta + s.data, (args.host, 18888))
+            sock.sendto(s.meta + s.data, (args.host, 18888))
     sock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
     print('UDP time used:')
@@ -139,3 +140,6 @@ if __name__ == '__main__':
     if args.tcp:
         print('Sending TCP')
         send_TCP(frames)
+    if args.tup:
+        print('Sending TUP')
+        send_TUP(frames)
