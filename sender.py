@@ -47,7 +47,7 @@ def sendto_with_socket(s, data, addr=(args.host, 18888), step=args.step):
 def send_UDP(frames):
     sock = create_udp_socket()
     tstart = datetime.now()
-    for f in sorted(frames, key=attrgetter('pkt_pos')):
+    for f in frames:
         for s in f.segs:
             sock.sendto(s.data, (args.host, 18888))
     tend = datetime.now()
@@ -60,7 +60,7 @@ def send_TCP(frames):
     sock = create_tcp_socket()
     conn, addr = sock.accept()
     tstart = datetime.now()
-    for f in frames:
+    for f in sorted(frames, key=attrgetter('pkt_pos')):
         for s in f.segs:
             conn.send(s.data)
     tend = datetime.now()
@@ -102,6 +102,17 @@ def getFrames(videoPath):
     with open(videoPath, 'rb') as f:
         data = f.read()
         f.close()
+
+    frames.sort(key=attrgetter('pkt_pos'))
+    headerframe = frame()
+    setattr(headerframe, 'pkt_pos', 0)
+    setattr(headerframe, 'pkt_size', frames[0].pkt_pos)
+    frames.insert(0, headerframe)
+    tailframe = frame()
+    setattr(tailframe, 'pkt_pos', frames[-1].pkt_pos + frames[-1].pkt_size)
+    setattr(tailframe, 'pkt_size', len(data) - tailframe.pkt_pos)
+    frames.append(tailframe)
+
     for f in frames:
         f.make_segs(data, args.step)
 
