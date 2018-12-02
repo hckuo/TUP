@@ -36,31 +36,35 @@ def receive_tup():
     sockets = [tcp, udp]
 
     data_dict = {}
-    while True:
-        inputready, outputready, exceptready = select(sockets, [], [])
-        for s in inputready:
+    while sockets:
+        readready, _, exceptready = select(sockets, [], sockets)
+        for s in readready:
             if s == tcp:
-                payload = s.recv(1024 + 32)
+                header = s.recv(32)
+                if header == b'':
+                    print('Socket {} closed'.format(s))
+                    s.close()
+                    sockets.remove(s)
+                    continue
+                s_size = int.from_bytes(header[24:32], 'little')
+                chunk = s.recv(s_size)
             elif s == udp:
                 payload, addr = s.recvfrom(1024 + 32)
+                header = payload[:32]
+                chunk = payload[32:]
+                if payload == b'':
+                    print('Socket {} closed'.format(s))
+                    s.close()
+                    sockets.remove(s)
+                    continue
             else:
                 assert(False)
 
-            if len(payload) == 0:
-                print('Socket {} closed'.format(s))
-                s.close()
-                sockets.remove(s)
-                continue
-            header = payload[:32]
-            chunk = payload[32:]
             f_pos = int.from_bytes(header[0:8], 'little')
             f_size = int.from_bytes(header[8:16], 'little')
             s_pos = int.from_bytes(header[16:24], 'little')
             s_size = int.from_bytes(header[24:32], 'little')
-            print(s.type, f_pos, f_size,s_pos,s_size)
             data_dict[s_pos] = chunk
-        if len(sockets) == 0:
-            break
 
     for pos, chunk in sorted(data_dict.items()):
         if pos == len(data):
