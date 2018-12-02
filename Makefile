@@ -2,7 +2,7 @@ all: bench-tcp bench-udp
 
 clean:
 	-rm output.mp4
-	-pkill -9 Python
+	-pkill -9 Python python3
 
 bench-tcp: clean
 	python3 sender.py -t &
