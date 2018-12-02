@@ -71,6 +71,7 @@ def receive_udp():
         chunk, addr = s.recvfrom(args.step)
         data += chunk
         if chunk == b'':
+            print('UDP end recv')
             s.close()
             break
     return data
@@ -78,8 +79,10 @@ def receive_udp():
 
 if __name__ == '__main__':
     if args.udp:
+        print('reciving UDP')
         data = receive_udp()
     if args.tcp:
+        print('reciving TCP')
         data = receive_tcp()
     with open('output.mp4', 'wb') as f:
         f.write(data)

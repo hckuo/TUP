@@ -11,8 +11,9 @@ bench-tcp: clean
 
 bench-udp: clean
 	python3 client.py -u &
+	pclient=$!
 	sleep 1;
 	python3 sender.py -u
-	wait
+	wait $$pclient
 
 .PHONY: clean all

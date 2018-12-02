@@ -50,6 +50,7 @@ def send_UDP(frames):
     for f in frames:
         for s in f.segs:
             sock.sendto(s.data, (args.host, 18888))
+    sock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
     print('UDP time used:')
     print(tend - tstart)
