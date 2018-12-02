@@ -3,19 +3,16 @@ class segment:
         self.id = id
         self.frame = frame
         self.start = start
-        self.end = end
         self.size = end - start
         self.data = data
+        self.udp_meta = b''
+        self.udp_meta += (self.frame.pkt_pos).to_bytes(8, byteorder='little')
+        self.udp_meta += (self.frame.pkt_size).to_bytes(8, byteorder='little')
+        self.udp_meta += (self.start).to_bytes(8, byteorder='little')
+        self.udp_meta += (self.size).to_bytes(8, byteorder='little')
 
     def __repr__(self):
         return str(self.__dict__)
-
-    def send(self, socket):
-        socket.send(self.data)
-
-    def sendto(self, socket, addr):
-        socket.sendto(self, data, addr)
-
 
 class frame:
     def __init__(self):
