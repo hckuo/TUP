@@ -1,11 +1,12 @@
 from socket import *
 from select import select
+import collections
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
 parser.add_argument('-t', '--tcp', action='store_true')
-parser.add_argument('--host',default='localhost')
+parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 args = parser.parse_args()
 tcp_port = 16677
@@ -67,20 +68,29 @@ def receive_udp():
     data = bytearray()
     s = socket(AF_INET, SOCK_DGRAM)
     s.bind((args.host, udp_port))
+    data_dict = {}
     while True:
-        header = s.recvfrom(32)
-        f_pos = int.from_bytes(header[0:7],'little')
-        f_size = int.from_bytes(header[8:15],'little')
-        s_pos = int.from_bytes(header[16:23],'little')
-        s_size = int.from_bytes(header[24:31],'little')
+        header, addr = s.recvfrom(32)
+        f_pos = int.from_bytes(header[0:7], 'little')
+        f_size = int.from_bytes(header[8:15], 'little')
+        s_pos = int.from_bytes(header[16:23], 'little')
+        s_size = int.from_bytes(header[24:31], 'little')
         chunk, addr = s.recvfrom(s_size)
+        data_dict[s_pos] = chunk
 
-
-        data += chunk
         if chunk == b'':
             print('UDP end recv')
             s.close()
             break
+
+    prev = 0
+    for pos, chunk in sorted(data_dict.items()):
+        if pos == prev:
+            data += chunk
+        else:
+            data += b'0x0' * (pos - prev)
+        prev = len(data)
+
     return data
 
 

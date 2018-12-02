@@ -2,16 +2,17 @@ import argparse
 from datetime import datetime
 from frame import frame
 from operator import attrgetter
-from socket import socket, AF_INET, SOCK_STREAM,SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
+from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
 import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
 parser.add_argument('-t', '--tcp', action='store_true')
 parser.add_argument('--host', default='localhost')
-parser.add_argument('-s', '--step',type=int,default=1024)
+parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 args = parser.parse_args()
+
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
@@ -32,15 +33,16 @@ def send_with_connection(conn, data, step=args.step):
         if i + step > len(data):
             conn.send(data[i:])
         else:
-            conn.send(data[i:i+step])
+            conn.send(data[i:i + step])
     conn.close()
+
 
 def sendto_with_socket(s, data, addr=(args.host, 18888), step=args.step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             s.sendto(data[i:], addr)
         else:
-            s.sendto(data[i:i+step], addr)
+            s.sendto(data[i:i + step], addr)
     s.sendto(b'', addr)
 
 
@@ -69,6 +71,7 @@ def send_TCP(frames):
     print(tend - tstart)
     sock.close()
 
+
 ## check input file byte by byte if it is in the given range
 def send_TUP(vdata, videoRange):
     tcp_data = bytearray()
@@ -87,7 +90,7 @@ def send_TUP(vdata, videoRange):
 
 def getFrames(videoPath):
     frames = []
-    for line in open(videoPath+'.meta'):
+    for line in open(videoPath + '.meta'):
         if line == '[FRAME]\n':
             f = frame()
         elif line == '[/FRAME]\n':
@@ -119,6 +122,7 @@ def getFrames(videoPath):
 
     return frames
 
+
 if __name__ == '__main__':
 
     frames = getFrames(args.video)
@@ -135,4 +139,3 @@ if __name__ == '__main__':
     if args.tcp:
         print('Sending TCP')
         send_TCP(frames)
-
