@@ -6,6 +6,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
+parser.add_argument('-t', '--tcp', action='store_true')
 parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step',type=int,default=1024)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     if args.udp:
         print('Sending UDP')
         send_UDP(frames)
-    else:
+    if args.tcp:
         print('Sending TCP')
         send_TCP(frames)
 

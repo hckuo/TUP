@@ -5,9 +5,9 @@ clean:
 	-pkill -9 Python
 
 bench-tcp: clean
-	python3 sender.py &
+	python3 sender.py -t &
 	sleep 1;
-	python3 client.py
+	python3 client.py -t
 
 bench-udp: clean
 	python3 client.py -u &

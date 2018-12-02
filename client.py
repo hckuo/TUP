@@ -4,17 +4,12 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
-parser.add_argument('--host')
-parser.add_argument('-s', '--step')
+parser.add_argument('-t', '--tcp', action='store_true')
+parser.add_argument('--host',default='localhost')
+parser.add_argument('-s', '--step', type=int, default=1024)
 args = parser.parse_args()
-byte_step = 1024
-host = 'localhost'
 tcp_port = 16677
-udp_port = 18889
-if args.host:
-    host = args.host
-if args.step:
-    byte_step = args.step
+udp_port = 18888
 
 
 def read_tcp(s):
@@ -22,7 +17,7 @@ def read_tcp(s):
 
 
 def read_udp(s):
-    data, addr = s.recvfrom(byte_step)
+    data, addr = s.recvfrom(args.step)
     return data
 
 
@@ -33,7 +28,7 @@ def receive():
 
     # create tcp socket
     tcp = socket(AF_INET, SOCK_STREAM)
-    tcp.connect((host, port1))
+    tcp.connect((args.host, port1))
 
     # create udp socket
     udp = socket(AF_INET, SOCK_DGRAM)
@@ -57,9 +52,9 @@ def receive():
 def receive_tcp():
     data = bytearray()
     s = socket(AF_INET, SOCK_STREAM)
-    s.connect((host, tcp_port))
+    s.connect((args.host, tcp_port))
     while True:
-        chunk = s.recv(byte_step)
+        chunk = s.recv(args.step)
         data += chunk
         if chunk == b'':
             s.close()
@@ -71,9 +66,9 @@ def receive_tcp():
 def receive_udp():
     data = bytearray()
     s = socket(AF_INET, SOCK_DGRAM)
-    s.bind((host, udp_port))
+    s.bind((args.host, udp_port))
     while True:
-        chunk, addr = s.recvfrom(byte_step)
+        chunk, addr = s.recvfrom(args.step)
         data += chunk
         if chunk == b'':
             s.close()
@@ -81,13 +76,10 @@ def receive_udp():
     return data
 
 
-## TESTING FUNCTION
 if __name__ == '__main__':
-    fileName = 'videos/uiuc.mp4'
-    metaName = fileName + '.meta'
     if args.udp:
         data = receive_udp()
-    else:
+    if args.tcp:
         data = receive_tcp()
     with open('output.mp4', 'wb') as f:
         f.write(data)

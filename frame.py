@@ -38,4 +38,3 @@ class frame:
                 self.segs.append(
                     segment(sid, self, i, i + step, data[i:i + step]))
             sid += 1
-
