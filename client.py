@@ -70,26 +70,25 @@ def receive_udp():
     s.bind((args.host, udp_port))
     data_dict = {}
     while True:
-        header, addr = s.recvfrom(32)
-        f_pos = int.from_bytes(header[0:7], 'little')
-        f_size = int.from_bytes(header[8:15], 'little')
-        s_pos = int.from_bytes(header[16:23], 'little')
-        s_size = int.from_bytes(header[24:31], 'little')
-        chunk, addr = s.recvfrom(s_size)
-        data_dict[s_pos] = chunk
-
-        if chunk == b'':
+        payload, addr = s.recvfrom(1024 + 32)
+        if payload == b'':
             print('UDP end recv')
             s.close()
             break
+        header = payload[:32]
+        chunk = payload[32:]
+        f_pos = int.from_bytes(header[0:8], 'little')
+        f_size = int.from_bytes(header[8:16], 'little')
+        s_pos = int.from_bytes(header[16:24], 'little')
+        s_size = int.from_bytes(header[24:32], 'little')
+        data_dict[s_pos] = chunk
 
-    prev = 0
     for pos, chunk in sorted(data_dict.items()):
-        if pos == prev:
+        if pos == len(data):
             data += chunk
         else:
-            data += b'0x0' * (pos - prev)
-        prev = len(data)
+            print('data miss at {} size {}'.format(len(data), pos - len(data)))
+            data += b'\x00' * (pos - len(data))
 
     return data
 
