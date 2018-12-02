@@ -10,11 +10,12 @@ args = parser.parse_args()
 byte_step = 1024
 host = 'localhost'
 tcp_port = 16677
-udp_port = 18888
+udp_port = 18889
 if args.host:
     host = args.host
 if args.step:
     byte_step = args.step
+
 
 def read_tcp(s):
     return data
@@ -63,7 +64,7 @@ def receive_tcp():
         if chunk == b'':
             s.close()
             print('close conn')
-            break;
+            break
     return data
 
 
@@ -75,8 +76,10 @@ def receive_udp():
         chunk, addr = s.recvfrom(byte_step)
         data += chunk
         if chunk == b'':
-            break;
+            s.close()
+            break
     return data
+
 
 ## TESTING FUNCTION
 if __name__ == '__main__':
@@ -88,4 +91,3 @@ if __name__ == '__main__':
         data = receive_tcp()
     with open('output.mp4', 'wb') as f:
         f.write(data)
-

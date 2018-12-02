@@ -1,35 +1,41 @@
 class segment:
-    def __init__(self, id, frameid, start, end, data)
+    def __init__(self, id, frame, start, end, data):
         self.id = id
-        self.frameid = frameid
+        self.frame = frame
         self.start = start
         self.end = end
         self.size = end - start
         self.data = data
+
+    def __repr__(self):
+        return str(self.__dict__)
 
     def send(self, socket):
         socket.send(self.data)
 
     def sendto(self, socket, addr):
-        socket.sendto(self,data, addr)
+        socket.sendto(self, data, addr)
+
 
 class frame:
-    def __init__(self, type, id, start, end, data)
-        self.type = type
-        self.id = id
-        self.start = start
-        self.end = end
-        self.size = end - start
-        self.data = data
+    def __init__(self):
         self.segs = []
-        sid = 0
-        for i in range(self.start, self.end, step):
-            if i + step > end:
-                self.segs.append(segment(sid, self.id, i, end, data[i:end]))
-            else:
-                self.segs.append(segment(sid, self.id, i, i+step, data[i:i+step]))
-            sid += 1
 
-    def segments(self, step=1024):
-        return self.segs
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def size(self):
+        return self.pkt_size
+
+    def make_segs(self, data, step):
+        end_pos = self.pkt_pos + self.pkt_size
+        sid = 0
+        for i in range(self.pkt_pos, end_pos, step):
+            if i + step > end_pos:
+                self.segs.append(
+                    segment(sid, self, i, end_pos, data[i:end_pos]))
+            else:
+                self.segs.append(
+                    segment(sid, self, i, i + step, data[i:i + step]))
+            sid += 1
 

@@ -1,34 +1,31 @@
-import sys
-from datetime import datetime
-from socket import *
-from pic import *
 import argparse
+from datetime import datetime
+from frame import frame
+from socket import socket, AF_INET, SOCK_STREAM,SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
+import sys
 
-host = 'localhost'
-byte_step = 1024
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
-parser.add_argument('--host')
-parser.add_argument('-s', '--step')
+parser.add_argument('--host', default='localhost')
+parser.add_argument('-s', '--step',type=int,default=1024)
+parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 args = parser.parse_args()
-if args.host:
-    host = args.host
-if args.step:
-    byte_step = args.step
 
 def create_tcp_socket():
     s = socket(AF_INET, SOCK_STREAM)
-    s.bind((host, 16677))
+    s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    s.bind((args.host, 16677))
     s.listen(5)
     return s
 
 
 def create_udp_socket():
     s = socket(AF_INET, SOCK_DGRAM)
+    s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     return s
 
 
-def send_with_connection(conn, data, step=byte_step):
+def send_with_connection(conn, data, step=args.step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             conn.send(data[i:])
@@ -36,7 +33,7 @@ def send_with_connection(conn, data, step=byte_step):
             conn.send(data[i:i+step])
     conn.close()
 
-def sendto_with_socket(s, data, addr=(host, 18888), step=byte_step):
+def sendto_with_socket(s, data, addr=(args.host, 18888), step=args.step):
     for i in range(0, len(data), step):
         if i + step > len(data):
             s.sendto(data[i:], addr)
@@ -44,33 +41,30 @@ def sendto_with_socket(s, data, addr=(host, 18888), step=byte_step):
             s.sendto(data[i:i+step], addr)
     s.sendto(b'', addr)
 
-def get_bytes_from_file(filename):
-    f = open(filename, "rb")
-    data = f.read()
-    f.close()
-    return data
 
-
-def send_UDP(vdata):
-    s = create_udp_socket()
+def send_UDP(frames):
+    sock = create_udp_socket()
     tstart = datetime.now()
-    sendto_with_socket(s, vdata)
+    for f in frames:
+        for s in f.segs:
+            sock.sendto(s.data, (args.host, 18888))
     tend = datetime.now()
     print('UDP time used:')
     print(tend - tstart)
-    s.close()
+    sock.close()
 
 
-def send_TCP(vdata):
-    s = create_tcp_socket()
-    conn, addr = s.accept()
+def send_TCP(frames):
+    sock = create_tcp_socket()
+    conn, addr = sock.accept()
     tstart = datetime.now()
-    send_with_connection(conn, vdata)
+    for f in frames:
+        for s in f.segs:
+            conn.send(s.data)
     tend = datetime.now()
     print('TCP time used:', end='')
     print(tend - tstart)
-    s.close()
-
+    sock.close()
 
 ## check input file byte by byte if it is in the given range
 def send_TUP(vdata, videoRange):
@@ -88,25 +82,32 @@ def send_TUP(vdata, videoRange):
     send_UDP(udp_data)
 
 
-def tcp_sender(btArray):
-    s_tcp = create_tcp_socket()
-    send_tcp_socket(s_tcp, btArray)
-    s_tcp.shutdown(SHUT_WR)
-    s_tcp.close()
+def getFrames(videoPath):
+    frames = []
+    for line in open(videoPath+'.meta'):
+        if line == '[FRAME]\n':
+            f = frame()
+        elif line == '[/FRAME]\n':
+            frames.append(f)
+            f = None
+        else:
+            var = line.strip().split('=')[0]
+            value = line.strip().split('=')[1]
+            if value.isdigit():
+                value = int(value)
+            setattr(f, var, value)
 
+    with open(videoPath, 'rb') as f:
+        data = f.read()
+        f.close()
+    for f in frames:
+        f.make_segs(data, args.step)
 
-##TESTING FUNCTION
+    return frames
+
 if __name__ == '__main__':
 
-    #  fileName = 'videos/rabbit.mp4'
-    fileName = 'videos/uiuc.mp4'
-    metaName = fileName + '.meta'
-
-    vdata = get_bytes_from_file(fileName)
-
-    fs = getFrames(metaName)
-    IRange = getIRange(fs)
-    PRange = getPRange(fs)
+    frames = getFrames(args.video)
 
     #  tstart = datetime.now()
     #  send_TUP(vdata, IRange)
@@ -116,8 +117,8 @@ if __name__ == '__main__':
 
     if args.udp:
         print('Sending UDP')
-        send_UDP(vdata)
+        send_UDP(frames)
     else:
         print('Sending TCP')
-        send_TCP(vdata)
+        send_TCP(frames)
 
