@@ -23,14 +23,59 @@ def read_udp(s):
     return data
 
 
-def receive():
+def receive_tup():
+
     data = bytearray()
-    port2 = 8888  #port for UDP
-    backlog = 5
+
+    udp = socket(AF_INET, SOCK_DGRAM)
+    udp.bind((args.host, udp_port))
+
+    tcp = socket(AF_INET, SOCK_STREAM)
+    tcp.connect((args.host, tcp_port))
+
+    sockets = [tcp, udp]
+
+    data_dict = {}
+    while True:
+        inputready, outputready, exceptready = select(sockets, [], [])
+        for s in inputready:
+            if s == tcp:
+                while True:
+                    s = socket(AF_INET, SOCK_STREAM)
+                    s.connect((args.host, tcp_port))
+                    header = payload[:32]
+                    chunk = payload[32:]
+                    f_pos = int.from_bytes(header[0:8], 'little')
+                    f_size = int.from_bytes(header[8:16], 'little')
+                    s_pos = int.from_bytes(header[16:24], 'little')
+                    s_size = int.from_bytes(header[24:32], 'little')
+                    data_dict[s_pos] = chunk
+            elif s == udp:
+                payload, addr = s.recvfrom(1024 + 32)
+                if payload == b'':
+                    print('UDP end recv')
+                    udp.close()
+                    break
+                header = payload[:32]
+                chunk = payload[32:]
+                f_pos = int.from_bytes(header[0:8], 'little')
+                f_size = int.from_bytes(header[8:16], 'little')
+                s_pos = int.from_bytes(header[16:24], 'little')
+                s_size = int.from_bytes(header[24:32], 'little')
+                data_dict[s_pos] = chunk
+
+    for pos, chunk in sorted(data_dict.items()):
+        if pos == len(data):
+            data += chunk
+        else:
+            print('data miss at {} size {}'.format(len(data), pos - len(data)))
+            data += b'\x00' * (pos - len(data))
+
+    return data
+
 
     # create tcp socket
-    tcp = socket(AF_INET, SOCK_STREAM)
-    tcp.connect((args.host, port1))
+
 
     # create udp socket
     udp = socket(AF_INET, SOCK_DGRAM)
@@ -63,7 +108,6 @@ def receive_tcp():
             print('close conn')
             break
     return data
-
 
 def receive_udp():
     data = bytearray()
