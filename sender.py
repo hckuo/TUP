@@ -60,7 +60,7 @@ def send_TCP(frames):
     sock = create_tcp_socket()
     conn, addr = sock.accept()
     tstart = datetime.now()
-    for f in sorted(frames, key=attrgetter('pkt_pos')):
+    for f in frames:
         for s in f.segs:
             conn.send(s.data)
     tend = datetime.now()
