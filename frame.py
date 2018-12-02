@@ -1,14 +1,14 @@
 class segment:
-    def __init__(self, id, frame, start, end, data):
+    def __init__(self, id, frame, pos, end, data):
         self.id = id
         self.frame = frame
-        self.start = start
-        self.size = end - start
+        self.pos = pos
+        self.size = end - pos
         self.data = data
         self.udp_meta = b''
         self.udp_meta += (self.frame.pkt_pos).to_bytes(8, byteorder='little')
         self.udp_meta += (self.frame.pkt_size).to_bytes(8, byteorder='little')
-        self.udp_meta += (self.start).to_bytes(8, byteorder='little')
+        self.udp_meta += (self.pos).to_bytes(8, byteorder='little')
         self.udp_meta += (self.size).to_bytes(8, byteorder='little')
 
     def __repr__(self):
