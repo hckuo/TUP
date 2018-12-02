@@ -21,7 +21,10 @@ class frame:
         return str(self.__dict__)
 
     def isvideo(self):
-        return self.media_type[0] == 'v'
+        try:
+            return self.media_type[0] == 'v'
+        except AttributeError:
+            return False
 
     def isPframe(self):
         return self.isvideo() and self.pict_type =='P'

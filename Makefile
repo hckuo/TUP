@@ -18,7 +18,7 @@ bench-udp: clean
 
 bench-tup: clean
 	python3 sender.py -tu &
-	sleep 1;
+	sleep 2;
 	python3 client.py -tu
 
 

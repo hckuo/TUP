@@ -73,11 +73,10 @@ def send_TCP(frames):
     sock.close()
 
 
-## check input file byte by byte if it is in the given range
-def send_TUP(vdata, videoRange):
+def send_TUP(frames):
     tcpsock = create_tcp_socket()
     udpsock = create_udp_socket()
-    conn, addr = sock.accept()
+    conn, addr = tcpsock.accept()
     tstart = datetime.now()
     for f in frames:
         if f.isPframe() or f.isBframe():
@@ -86,6 +85,7 @@ def send_TUP(vdata, videoRange):
         else:
             for s in f.segs:
                 conn.send(s.meta + s.data)
+    udpsock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
     print('TUP time used:', end='')
     print(tend - tstart)
