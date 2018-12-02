@@ -1,4 +1,4 @@
-all: bench-tcp bench-udp
+all: bench-tcp bench-udp bench_tup
 
 clean:
 	-rm output.mp4
@@ -15,5 +15,11 @@ bench-udp: clean
 	sleep 1;
 	python3 sender.py -u
 	wait $$pclient
+
+bench-tup: clean
+	python3 sender.py -tu &
+	sleep 1;
+	python3 client.py -tu
+
 
 .PHONY: clean all

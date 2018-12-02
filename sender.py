@@ -55,7 +55,7 @@ def send_UDP(frames):
             sock.sendto(s.meta + s.data, (args.host, 18888))
     sock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
-    print('UDP time used:')
+    print('UDP time used:', end='')
     print(tend - tstart)
     sock.close()
 
@@ -75,18 +75,22 @@ def send_TCP(frames):
 
 ## check input file byte by byte if it is in the given range
 def send_TUP(vdata, videoRange):
-    tcp_data = bytearray()
-    udp_data = bytearray()
-    udp_start = 0
-    for r in videoRange:
-        tcp_start = r[0]
-        udp_data += vdata[udp_start:tcp_start]
-        udp_start = r[1]
-        tcp_data += vdata[tcp_start:udp_start]
-    udp_data += vdata[udp_start:]
-    #TODO: make sends concurrently
-    send_TCP(tcp_data)
-    send_UDP(udp_data)
+    tcpsock = create_tcp_socket()
+    udpsock = create_udp_socket()
+    conn, addr = sock.accept()
+    tstart = datetime.now()
+    for f in frames:
+        if f.isPframe() or f.isBframe():
+            for s in f.segs:
+                udpsock.sendto(s.meta + s.data, (args.host, 18888))
+        else:
+            for s in f.segs:
+                conn.send(s.meta + s.data)
+    tend = datetime.now()
+    print('TUP time used:', end='')
+    print(tend - tstart)
+    tcpsock.close()
+    udpsock.close()
 
 
 def getFrames(videoPath):
@@ -127,12 +131,6 @@ def getFrames(videoPath):
 if __name__ == '__main__':
 
     frames = getFrames(args.video)
-
-    #  tstart = datetime.now()
-    #  send_TUP(vdata, IRange)
-    #  tend = datetime.now()
-    #  print('TUP(our method) time used:')
-    #  print(tend - tstart)
 
     if args.udp:
         print('Sending UDP')
