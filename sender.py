@@ -82,7 +82,7 @@ def send_TUP(frames):
     conn, addr = tcpsock.accept()
     tstart = datetime.now()
     for f in frames:
-        if f.isPframe() or f.isBframe():
+        if f.isPframe() or f.isBframe() or f.isaudio():
             for s in f.segs:
                 r = random.randint(1,1000000)
                 if r > args.dropness:

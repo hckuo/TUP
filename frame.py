@@ -26,6 +26,12 @@ class frame:
         except AttributeError:
             return False
 
+    def isaudio(self):
+        try:
+            return self.media_type[0] == 'a'
+        except AttributeError:
+            return False
+
     def isPframe(self):
         return self.isvideo() and self.pict_type =='P'
 
