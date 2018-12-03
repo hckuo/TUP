@@ -67,11 +67,10 @@ def receive_tup():
             data_dict[s_pos] = chunk
 
     for pos, chunk in sorted(data_dict.items()):
-        if pos == len(data):
-            data += chunk
-        else:
+        if len(data) < pos:
             print('data miss at {} size {}'.format(len(data), pos - len(data)))
             data += b'\x00' * (pos - len(data))
+        data += chunk
 
     return data
 

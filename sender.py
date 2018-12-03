@@ -15,7 +15,7 @@ parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 args = parser.parse_args()
 
-drop = 1
+dropness = 0
 
 
 def create_tcp_socket():
@@ -85,7 +85,7 @@ def send_TUP(frames):
         if f.isPframe() or f.isBframe():
             for s in f.segs:
                 r = random.randint(1,1000)
-                if r > drop:
+                if r > dropness:
                     udpsock.sendto(s.meta + s.data, (args.host, 18888))
         else:
             for s in f.segs:
