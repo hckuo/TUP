@@ -4,6 +4,7 @@ from frame import frame
 from operator import attrgetter
 from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
 import sys
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
@@ -13,6 +14,8 @@ parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 args = parser.parse_args()
+
+drop = 1
 
 
 def create_tcp_socket():
@@ -81,7 +84,9 @@ def send_TUP(frames):
     for f in frames:
         if f.isPframe() or f.isBframe():
             for s in f.segs:
-                udpsock.sendto(s.meta + s.data, (args.host, 18888))
+                r = random.randint(1,1000)
+                if r > drop:
+                    udpsock.sendto(s.meta + s.data, (args.host, 18888))
         else:
             for s in f.segs:
                 conn.send(s.meta + s.data)
