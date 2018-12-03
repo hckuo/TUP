@@ -8,6 +8,10 @@ import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
+parser.add_argument('--pudp', action='store_true')
+parser.add_argument('--budp', action='store_true')
+parser.add_argument('--iudp', action='store_true')
+parser.add_argument('--audp', action='store_true')
 parser.add_argument('-t', '--tcp', action='store_true')
 parser.add_argument('-tu', '--tup', action='store_true')
 parser.add_argument('--host', default='localhost')
@@ -15,7 +19,6 @@ parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-d', '--dropness', type=int, default=0)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 args = parser.parse_args()
-
 
 
 def create_tcp_socket():
@@ -82,9 +85,10 @@ def send_TUP(frames):
     conn, addr = tcpsock.accept()
     tstart = datetime.now()
     for f in frames:
-        if f.isPframe() or f.isBframe() or f.isaudio():
+        if (args.pudp and f.isPframe()) or (args.budp and f.isBframe()) or (
+                args.iudp and f.isIframe) or (args.audp and f.isaudio()):
             for s in f.segs:
-                r = random.randint(1,1000000)
+                r = random.randint(1, 1000000)
                 if r > args.dropness:
                     udpsock.sendto(s.meta + s.data, (args.host, 18888))
         else:

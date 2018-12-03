@@ -35,6 +35,9 @@ class frame:
     def isPframe(self):
         return self.isvideo() and self.pict_type =='P'
 
+    def isIframe(self):
+        return self.isvideo() and self.pict_type == 'I'
+
     def isBframe(self):
         return self.isvideo() and self.pict_type == 'B'
 

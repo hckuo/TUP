@@ -9,6 +9,7 @@ parser.add_argument('-t', '--tcp', action='store_true')
 parser.add_argument('-tu', '--tup', action='store_true')
 parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
+parser.add_argument('-o', '--output', default='output.mp4')
 args = parser.parse_args()
 tcp_port = 16677
 udp_port = 18888
@@ -132,5 +133,5 @@ if __name__ == '__main__':
     if args.tup:
         print('receiving TUP')
         data = receive_tup()
-    with open('output.mp4', 'wb') as f:
+    with open(args.output, 'wb') as f:
         f.write(data)
