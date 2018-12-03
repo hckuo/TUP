@@ -16,8 +16,9 @@ bench-udp: clean
 	python3 sender.py -u
 	wait $$pclient
 
+# example: sender_opts="--audp --budp --pudp -d 10" make bench-tup
 bench-tup: clean
-	python3 sender.py -tu --audp --budp --pudp -d $$dropness &
+	python3 sender.py -tu $$sender_opts &
 	sleep 2;
 	python3 client.py -tu
 
