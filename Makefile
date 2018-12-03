@@ -17,7 +17,7 @@ bench-udp: clean
 	wait $$pclient
 
 bench-tup: clean
-	python3 sender.py -tu &
+	python3 sender.py -tu -d $$dropness &
 	sleep 2;
 	python3 client.py -tu
 

@@ -66,11 +66,15 @@ def receive_tup():
             s_size = int.from_bytes(header[24:32], 'little')
             data_dict[s_pos] = chunk
 
+    recvsize = 0
     for pos, chunk in sorted(data_dict.items()):
+        recvsize += len(chunk)
         if len(data) < pos:
             print('data miss at {} size {}'.format(len(data), pos - len(data)))
             data += b'\x00' * (pos - len(data))
         data += chunk
+
+    print('recvsize', recvsize)
 
     return data
 
