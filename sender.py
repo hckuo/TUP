@@ -5,6 +5,7 @@ from operator import attrgetter
 from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
 import sys
 import random
+import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
@@ -61,8 +62,8 @@ def send_UDP(frames):
             sock.sendto(s.meta + s.data, (args.host, 18888))
     sock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
-    print('UDP time used:', end='')
-    print(tend - tstart)
+    logging.debug('UDP time used:', end='')
+    logging.debug(tend - tstart)
     sock.close()
 
 
@@ -74,8 +75,8 @@ def send_TCP(frames):
         for s in f.segs:
             conn.send(s.data)
     tend = datetime.now()
-    print('TCP time used:', end='')
-    print(tend - tstart)
+    logging.debug('TCP time used:', end='')
+    logging.debug(tend - tstart)
     sock.close()
 
 
@@ -96,8 +97,8 @@ def send_TUP(frames):
                 conn.send(s.meta + s.data)
     udpsock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
-    print('TUP time used:', end='')
-    print(tend - tstart)
+    logging.debug('TUP time used:', end='')
+    logging.debug(tend - tstart)
     tcpsock.close()
     udpsock.close()
 
@@ -142,11 +143,11 @@ if __name__ == '__main__':
     frames = getFrames(args.video)
 
     if args.udp:
-        print('Sending UDP')
+        logging.debug('Sending UDP')
         send_UDP(frames)
     if args.tcp:
-        print('Sending TCP')
+        logging.debug('Sending TCP')
         send_TCP(frames)
     if args.tup:
-        print('Sending TUP')
+        logging.debug('Sending TUP')
         send_TUP(frames)

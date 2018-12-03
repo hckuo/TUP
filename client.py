@@ -2,6 +2,8 @@ from socket import *
 from select import select
 import collections
 import argparse
+import logging
+from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
@@ -35,26 +37,29 @@ def receive_tup():
     tcp.connect((args.host, tcp_port))
 
     sockets = [tcp, udp]
+    tcprecv = 0
+    udprecv = 0
 
     data_dict = {}
+    tstart = datetime.now()
     while sockets:
         readready, _, exceptready = select(sockets, [], sockets)
         for s in readready:
             if s == tcp:
                 header = s.recv(32)
                 if header == b'':
-                    print('Socket {} closed'.format(s))
                     s.close()
                     sockets.remove(s)
                     continue
                 s_size = int.from_bytes(header[24:32], 'little')
                 chunk = s.recv(s_size)
+                tcprecv += len(chunk)
             elif s == udp:
                 payload, addr = s.recvfrom(1024 + 32)
                 header = payload[:32]
                 chunk = payload[32:]
+                udprecv += len(chunk)
                 if payload == b'':
-                    print('Socket {} closed'.format(s))
                     s.close()
                     sockets.remove(s)
                     continue
@@ -67,15 +72,14 @@ def receive_tup():
             s_size = int.from_bytes(header[24:32], 'little')
             data_dict[s_pos] = chunk
 
-    recvsize = 0
     for pos, chunk in sorted(data_dict.items()):
-        recvsize += len(chunk)
         if len(data) < pos:
-            print('data miss at {} size {}'.format(len(data), pos - len(data)))
+            logging.debug('data miss at {} size {}'.format(len(data), pos - len(data)))
             data += b'\x00' * (pos - len(data))
         data += chunk
 
-    print('recvsize', recvsize)
+    tend = datetime.now()
+    print('recvsize tcp:{} udp:{} total:{} time:{}'.format(tcprecv, udprecv, tcprecv + udprecv, (tend-tstart).microseconds))
 
     return data
 
@@ -89,7 +93,7 @@ def receive_tcp():
         data += chunk
         if chunk == b'':
             s.close()
-            print('close conn')
+            logging.debug('close conn')
             break
     return data
 
@@ -102,7 +106,7 @@ def receive_udp():
     while True:
         payload, addr = s.recvfrom(1024 + 32)
         if payload == b'':
-            print('UDP end recv')
+            logging.debug('UDP end recv')
             s.close()
             break
         header = payload[:32]
@@ -117,7 +121,7 @@ def receive_udp():
         if pos == len(data):
             data += chunk
         else:
-            print('data miss at {} size {}'.format(len(data), pos - len(data)))
+            logging.debug('data miss at {} size {}'.format(len(data), pos - len(data)))
             data += b'\x00' * (pos - len(data))
 
     return data
@@ -125,13 +129,13 @@ def receive_udp():
 
 if __name__ == '__main__':
     if args.udp:
-        print('receiving UDP')
+        logging.debug('receiving UDP')
         data = receive_udp()
     if args.tcp:
-        print('receiving TCP')
+        logging.debug('receiving TCP')
         data = receive_tcp()
     if args.tup:
-        print('receiving TUP')
+        logging.debug('receiving TUP')
         data = receive_tup()
     with open(args.output, 'wb') as f:
         f.write(data)
