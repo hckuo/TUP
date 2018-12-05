@@ -45,7 +45,7 @@ def receive_tup():
             if s == tcp:
                 header = s.recv(32)
                 if header == b'':
-                    logging.info("TCP close")
+                    logger.info("TCP close")
                     s.close()
                     sockets.remove(s)
                     continue
@@ -61,7 +61,9 @@ def receive_tup():
             elif s == udp:
                 payload, addr = s.recvfrom(1024 + 32)
                 if payload == b'':
-                    logging.info("UDP close")
+                    logger.info("UDP close")
+                    if args.giveup:
+                        tcp.send(b'\x00'*8)
                     s.close()
                     sockets.remove(s)
                     continue

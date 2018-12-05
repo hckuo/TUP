@@ -6,8 +6,8 @@ from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_
 import sys
 import random
 import logging
-import multiprocessing as mp
-logging.basicConfig(level=logging.INFO)
+import threading
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('sender')
 
 parser = argparse.ArgumentParser()
@@ -93,24 +93,23 @@ def send_TUP(frames):
     def collectgiveups(giveups, conn):
         while True:
             data = conn.recv(8)
-            if len(data) == 0:
-                break
-            logger.debug('get giveups')
             start = int.from_bytes(data[:8], 'little')
+            if(start == 0):
+                break
             giveups.add(start)
         logger.debug("collect give up returns")
 
     tstart = datetime.now()
     if args.giveup:
         logger.info("Start collecting giveups")
-        p = mp.Process(target=collectgiveups, args=(giveups, conn))
-        p.start()
+        t = threading.Thread(target=collectgiveups, args=(giveups, conn))
+        t.start()
     for f in frames:
         if (args.pudp and f.isPframe()) or (args.budp and f.isBframe()) or (
                 args.iudp and f.isIframe) or (args.audp and f.isaudio()):
             for s in f.segs:
                 if args.giveup and s.frame.pkt_pos in giveups:
-                    logging.info("Skip frame {} ".format(s.frame.pkt_pos))
+                    logger.info("Skip frame {} ".format(s.frame.pkt_pos))
                     break
                 r = random.randint(1, 1000000)
                 if r > args.dropness:
@@ -127,7 +126,7 @@ def send_TUP(frames):
     udpsock.close()
     if args.giveup:
         logger.info('Waiting for collectgiveups')
-        p.terminate()
+        t.join()
 
     tend = datetime.now()
 
