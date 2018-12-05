@@ -6,6 +6,9 @@ from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_
 import sys
 import random
 import logging
+import multiprocessing as mp
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('sender')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--udp', action='store_true')
@@ -19,6 +22,7 @@ parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-d', '--dropness', type=int, default=0)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
+parser.add_argument('--giveup', action='store_true')
 args = parser.parse_args()
 
 
@@ -62,8 +66,8 @@ def send_UDP(frames):
             sock.sendto(s.meta + s.data, (args.host, 18888))
     sock.sendto(b'', (args.host, 18888))
     tend = datetime.now()
-    logging.debug('UDP time used:', end='')
-    logging.debug(tend - tstart)
+    logger.debug('UDP time used:', end='')
+    logger.debug(tend - tstart)
     sock.close()
 
 
@@ -75,8 +79,8 @@ def send_TCP(frames):
         for s in f.segs:
             conn.send(s.data)
     tend = datetime.now()
-    logging.debug('TCP time used:', end='')
-    logging.debug(tend - tstart)
+    logger.debug('TCP time used:', end='')
+    logger.debug(tend - tstart)
     sock.close()
 
 
@@ -84,24 +88,48 @@ def send_TUP(frames):
     tcpsock = create_tcp_socket()
     udpsock = create_udp_socket()
     conn, addr = tcpsock.accept()
+    giveups = set()
+
+    def collectgiveups(giveups, conn):
+        while True:
+            data = conn.recv(8)
+            if len(data) == 0:
+                break
+            logger.debug('get giveups')
+            start = int.from_bytes(data[:8], 'little')
+            giveups.add(start)
+        logger.debug("collect give up returns")
+
     tstart = datetime.now()
+    if args.giveup:
+        logger.info("Start collecting giveups")
+        p = mp.Process(target=collectgiveups, args=(giveups, conn))
+        p.start()
     for f in frames:
         if (args.pudp and f.isPframe()) or (args.budp and f.isBframe()) or (
                 args.iudp and f.isIframe) or (args.audp and f.isaudio()):
             for s in f.segs:
+                if args.giveup and s.frame.pkt_pos in giveups:
+                    logging.info("Skip frame {} ".format(s.frame.pkt_pos))
+                    break
                 r = random.randint(1, 1000000)
                 if r > args.dropness:
                     udpsock.sendto(s.meta + s.data, (args.host, 18888))
         else:
             for s in f.segs:
                 conn.send(s.meta + s.data)
+
     udpsock.sendto(b'', (args.host, 18888))
-    tend = datetime.now()
-    logging.debug('TUP time used:', end='')
-    logging.debug(tend - tstart)
+
+    logger.info('Done sending all frames')
+
     tcpsock.close()
     udpsock.close()
+    if args.giveup:
+        logger.info('Waiting for collectgiveups')
+        p.terminate()
 
+    tend = datetime.now()
 
 def getFrames(videoPath):
     frames = []
@@ -143,11 +171,11 @@ if __name__ == '__main__':
     frames = getFrames(args.video)
 
     if args.udp:
-        logging.debug('Sending UDP')
+        logger.debug('Sending UDP')
         send_UDP(frames)
     if args.tcp:
-        logging.debug('Sending TCP')
+        logger.debug('Sending TCP')
         send_TCP(frames)
     if args.tup:
-        logging.debug('Sending TUP')
+        logger.debug('Sending TUP')
         send_TUP(frames)
