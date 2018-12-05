@@ -21,8 +21,8 @@ bench-udp: clean
 bench-tup: clean
 	@python3 sender.py -tu $$sender_opts &
 	@psender=$$!
-	@sleep 2;
-	@python3 client.py -tu
+	@sleep 5;
+	@python3 client.py -tu $$client_opts
 	@wait $$psender
 
 

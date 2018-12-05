@@ -17,15 +17,6 @@ tcp_port = 16677
 udp_port = 18888
 
 
-def read_tcp(s):
-    return data
-
-
-def read_udp(s):
-    data, addr = s.recvfrom(args.step)
-    return data
-
-
 def receive_tup():
 
     data = bytearray()
@@ -52,7 +43,10 @@ def receive_tup():
                     sockets.remove(s)
                     continue
                 s_size = int.from_bytes(header[24:32], 'little')
-                chunk = s.recv(s_size)
+                try:
+                    chunk = s.recv(s_size)
+                except MemoryError:
+                    logging.warn(s_size)
                 tcprecv += len(chunk)
             elif s == udp:
                 payload, addr = s.recvfrom(1024 + 32)
