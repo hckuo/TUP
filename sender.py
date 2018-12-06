@@ -7,7 +7,7 @@ import sys
 import random
 import logging
 import threading
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('sender')
 
 parser = argparse.ArgumentParser()
@@ -109,7 +109,7 @@ def send_TUP(frames):
                 args.iudp and f.isIframe) or (args.audp and f.isaudio()):
             for s in f.segs:
                 if args.giveup and s.frame.pkt_pos in giveups:
-                    logger.info("Skip frame {} ".format(s.frame.pkt_pos))
+                    logger.debug("Skip frame {} ".format(s.frame.pkt_pos))
                     break
                 r = random.randint(1, 1000000)
                 if r > args.dropness:
