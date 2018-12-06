@@ -15,8 +15,10 @@ parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-o', '--output', default='output.mp4')
 parser.add_argument('--giveup', action='store_true')
+parser.add_argument('--nogiveup', action='store_false')
 args = parser.parse_args()
-tcp_port = 16677
+tcp_port1 = 16677
+tcp_port2 = 16678
 udp_port = 18888
 
 
@@ -28,7 +30,10 @@ def receive_tup():
     udp.bind((args.host, udp_port))
 
     tcp = socket(AF_INET, SOCK_STREAM)
-    tcp.connect((args.host, tcp_port))
+    tcp.connect((args.host, tcp_port1))
+
+    tcp2 = socket(AF_INET, SOCK_STREAM)
+    tcp2.connect((args.host, tcp_port2))
 
     sockets = [tcp, udp]
     tcprecv = 0
@@ -53,17 +58,15 @@ def receive_tup():
                 f_size = int.from_bytes(header[8:16], 'little')
                 s_pos = int.from_bytes(header[16:24], 'little')
                 s_size = int.from_bytes(header[24:32], 'little')
-                try:
-                    chunk = s.recv(s_size)
-                except MemoryError:
-                    logger.warn(s_size)
+                assert(s_size <= 1024)
+                chunk = s.recv(s_size)
                 tcprecv += len(chunk)
             elif s == udp:
                 payload, addr = s.recvfrom(1024 + 32)
                 if payload == b'':
                     logger.info("UDP close")
                     if args.giveup:
-                        tcp.send(b'\x00'*8)
+                        tcp2.send(b'\x00'*8)
                     s.close()
                     sockets.remove(s)
                     continue
@@ -80,7 +83,7 @@ def receive_tup():
                         missedcnt += 1
                     if missedcnt == 1:
                         logger.debug("give up {}".format(f_pos))
-                        tcp.send(header[:8])
+                        tcp2.send(expected.to_bytes(8, byteorder='little'))
                         missedcnt = 0
                     expected = s_pos + s_size
             else:

@@ -23,14 +23,15 @@ parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-d', '--dropness', type=int, default=0)
 parser.add_argument('-v', '--video', default='videos/uiuc.mp4')
 parser.add_argument('--giveup', action='store_true')
+parser.add_argument('--nogiveup', action='store_false')
 args = parser.parse_args()
 
 
-def create_tcp_socket():
+def create_tcp_socket(port=16677):
     s = socket(AF_INET, SOCK_STREAM)
     s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    s.bind((args.host, 16677))
-    s.listen(5)
+    s.bind((args.host, port))
+    s.listen(1)
     return s
 
 
@@ -86,8 +87,10 @@ def send_TCP(frames):
 
 def send_TUP(frames):
     tcpsock = create_tcp_socket()
+    tcpsock2 = create_tcp_socket(16678)
     udpsock = create_udp_socket()
     conn, addr = tcpsock.accept()
+    conn2, _ = tcpsock2.accept()
     giveups = set()
 
     def collectgiveups(giveups, conn):
@@ -102,7 +105,7 @@ def send_TUP(frames):
     tstart = datetime.now()
     if args.giveup:
         logger.info("Start collecting giveups")
-        t = threading.Thread(target=collectgiveups, args=(giveups, conn))
+        t = threading.Thread(target=collectgiveups, args=(giveups, conn2))
         t.start()
     for f in frames:
         if (args.pudp and f.isPframe()) or (args.budp and f.isBframe()) or (
@@ -116,6 +119,7 @@ def send_TUP(frames):
                     udpsock.sendto(s.meta + s.data, (args.host, 18888))
         else:
             for s in f.segs:
+                assert(s.size <= 1024)
                 conn.send(s.meta + s.data)
 
     udpsock.sendto(b'', (args.host, 18888))
