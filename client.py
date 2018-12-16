@@ -15,7 +15,7 @@ parser.add_argument('--host', default='localhost')
 parser.add_argument('-s', '--step', type=int, default=1024)
 parser.add_argument('-o', '--output', default='output.mp4')
 parser.add_argument('--giveup', action='store_true')
-parser.add_argument('--nogiveup', action='store_false')
+parser.add_argument('--nogiveup', action='store_true')
 args = parser.parse_args()
 tcp_port1 = 16677
 tcp_port2 = 16678
@@ -32,8 +32,9 @@ def receive_tup():
     tcp = socket(AF_INET, SOCK_STREAM)
     tcp.connect((args.host, tcp_port1))
 
-    tcp2 = socket(AF_INET, SOCK_STREAM)
-    tcp2.connect((args.host, tcp_port2))
+    if args.giveup:
+        tcp2 = socket(AF_INET, SOCK_STREAM)
+        tcp2.connect((args.host, tcp_port2))
 
     sockets = [tcp, udp]
     tcprecv = 0
@@ -58,7 +59,11 @@ def receive_tup():
                 f_size = int.from_bytes(header[8:16], 'little')
                 s_pos = int.from_bytes(header[16:24], 'little')
                 s_size = int.from_bytes(header[24:32], 'little')
-                assert(s_size <= 1024)
+                try:
+                    assert(s_size <= 1024)
+                except AssertionError:
+                    print(header)
+
                 chunk = s.recv(s_size)
                 tcprecv += len(chunk)
             elif s == udp:
@@ -79,13 +84,14 @@ def receive_tup():
                 s_pos = int.from_bytes(header[16:24], 'little')
                 s_size = int.from_bytes(header[24:32], 'little')
                 if args.giveup:
-                    if expected != -1 and expected != s_pos:
+                    if expected != -1 and expected < s_pos:
                         missedcnt += 1
                     if missedcnt == 1:
                         logger.debug("give up {}".format(f_pos))
-                        tcp2.send(expected.to_bytes(8, byteorder='little'))
+                        tcp2.send(expected_fpos.to_bytes(8, byteorder='little'))
                         missedcnt = 0
                     expected = s_pos + s_size
+                    expected_fpos = f_pos
             else:
                 assert(False)
 

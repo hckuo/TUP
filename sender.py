@@ -2,7 +2,7 @@ import argparse
 from datetime import datetime
 from frame import frame
 from operator import attrgetter
-from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM
+from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET, SOCK_DGRAM, SHUT_RDWR
 import sys
 import random
 import logging
@@ -90,22 +90,25 @@ def send_TUP(frames):
     tcpsock2 = create_tcp_socket(16678)
     udpsock = create_udp_socket()
     conn, addr = tcpsock.accept()
-    conn2, _ = tcpsock2.accept()
     giveups = set()
 
-    def collectgiveups(giveups, conn):
+    def collectgiveups(giveups, sock):
+        conn2, _ = sock.accept()
         while True:
-            data = conn.recv(8)
+            data = conn2.recv(8)
             start = int.from_bytes(data[:8], 'little')
             if(start == 0):
                 break
             giveups.add(start)
+            logger.debug('giveup len {}'.format(len(giveups)))
         logger.debug("collect give up returns")
+        conn2.close()
+        sock.close()
 
     tstart = datetime.now()
     if args.giveup:
         logger.info("Start collecting giveups")
-        t = threading.Thread(target=collectgiveups, args=(giveups, conn2))
+        t = threading.Thread(target=collectgiveups, args=(giveups, tcpsock2))
         t.start()
     for f in frames:
         if (args.pudp and f.isPframe()) or (args.budp and f.isBframe()) or (
@@ -126,6 +129,7 @@ def send_TUP(frames):
 
     logger.info('Done sending all frames')
 
+    tcpsock.shutdown(SHUT_RDWR)
     tcpsock.close()
     udpsock.close()
     if args.giveup:
